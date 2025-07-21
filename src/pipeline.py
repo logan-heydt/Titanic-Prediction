@@ -1,9 +1,17 @@
+import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
 
-def feature_engineer(df):
+drop_cols = ['PassengerId','Cabin', 'Name', 'Title', 'SibSp', 'Parch']
+one_hot_cols = ['Sex', 'Embarked', 'cabin_level']
+impute_cols = ['Age']
+scaling_cols = ['Age', 'Fare', 'family_size']
+title_cats = ['Master', 'Dr', 'Rev', 'Major', 'Col', 'Countess', 'Capt', 'Sir', 'Lady', 'Don', 'Jonkheer']
+
+
+def feature_engineer(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
     # Ticket string to number
@@ -37,9 +45,20 @@ preprocessor = ColumnTransformer([
     ('cat', cat_pipeline, one_hot_cols)
 ], remainder='drop')
 
-full_pipeline = Pipeline([
-    ('feature_engineering', feature_engineer),
-    ('drop_na', FunctionTransformer(lambda df: df.dropna(subset=['Embarked', 'Ticket']))),
+pipeline_base = Pipeline([
+    ('feature_engineering', FunctionTransformer(feature_engineer)),
+    # ('drop_na', FunctionTransformer(lambda df: df.dropna(subset=['Embarked', 'Ticket']))),
     ('drop_cols', FunctionTransformer(lambda df: df.drop(columns=drop_cols))),
     ('preprocessing', preprocessor)
 ])
+
+def get_fitted_pipeline(X: pd.DataFrame):
+
+    pipeline_base.fit(X)
+
+    encoder = pipeline_base.named_steps['preprocessing'].named_transformers_['cat'].named_steps['encoder']
+    cat_features = encoder.get_feature_names_out(one_hot_cols)
+    all_features = scaling_cols + list(cat_features)
+
+    transformed = pipeline_base.transform(X)
+    return pipeline_base, pd.DataFrame(transformed, columns=all_features, index=X.index)

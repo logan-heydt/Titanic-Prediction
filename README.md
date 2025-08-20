@@ -15,7 +15,7 @@ The target variable is **Survived** (1 = survived, 0 = did not survive).
 I trained and evaluated three different models to compare performance:
 
 1. **Logistic Regression**  
-   - A baseline linear model for classification.
+   - A baseline regression model for classification.
    - Interpretable coefficients help identify feature importance.
 
 2. **XGBoost**  
@@ -45,3 +45,17 @@ I trained and evaluated three different models to compare performance:
 - Logistic Regression: Baseline performance, interpretable results.  
 - XGBoost: Stronger predictive performance compared to logistic regression.  
 - LightGBM: Comparable or slightly better than XGBoost, with faster training times.  
+
+## Requirements
+- Python 3.8+  
+- Libraries:
+  - pandas
+  - numpy
+  - scikit-learn
+  - xgboost
+  - lightgbm
+  - matplotlib / seaborn (for visualization)
+
+Install dependencies:
+```bash
+pip install -r requirements.txt
